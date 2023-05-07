@@ -67,10 +67,13 @@ RUN /bin/bash -c "wget -O /tmp/amd64.env https://raw.githubusercontent.com/autow
     && apt-get install -y geographiclib-tools \
     && geographiclib-get-geoids egm2008-1 "
 
-RUN git clone https://github.com/autowarefoundation/autoware.git \
-    && cd autoware && mkdir src \
+# Set the working directory
+WORKDIR /autoware_ws
+
+RUN git clone https://github.com/autowarefoundation/autoware.git
+
+RUN /bin/bash -c "cd autoware && mkdir src && source /opt/ros/humble/setup.bash \
     && vcs import src < autoware.repos \
     && rosdep install -y --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} \
-    && . /opt/ros/humble/setup.bash \
-    && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-
+    && source /opt/ros/humble/setup.bash \
+    && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release"
